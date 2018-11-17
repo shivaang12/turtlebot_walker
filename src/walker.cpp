@@ -4,7 +4,7 @@
  * @copyright MIT License (c) 2018 Shivang Patel
  *
  * @brief DESCRIPTION
- * Implementation of class called lawnmover.
+ * Implementation of class called Walker.
  *
  * @license MIT License
  * Permission is hereby granted, free of charge, to any person obtaining a copy
