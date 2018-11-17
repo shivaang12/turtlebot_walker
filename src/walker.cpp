@@ -27,9 +27,9 @@
  *
  */
 
-#include <walker.hpp>
+#include <turtlebot_walker/walker.hpp>
 
-Walker::Walker(ros::NodeHandle node_) {
+Walker::Walker(ros::NodeHandle node_):max_value_(0.25) {
   velocity_pub_ =
       node_.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/navi", 10);
   laser_sub_ = node_.subscribe("/scan", 10, &Walker::laserCallback, this);
