@@ -29,10 +29,10 @@
 
 #include <turtlebot_walker/walker.hpp>
 
-Walker::Walker(ros::NodeHandle node_):max_value_(0.25) {
-  velocity_pub_ =
-      node_.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/navi", 10);
-  laser_sub_ = node_.subscribe("/scan", 10, &Walker::laserCallback, this);
+Walker::Walker(ros::NodeHandle node_)
+    : max_value_(0.25), velocity_pub_(node_.advertise<geometry_msgs::Twist>(
+                            "cmd_vel_mux/input/navi", 10)),
+      laser_sub_(node_.subscribe("/scan", 10, &Walker::laserCallback, this)) {
 
   //> Resetting the the velocities.
   twist_msgs_.linear.x = 0;
@@ -52,23 +52,27 @@ Walker::~Walker() {
   ROS_INFO("TURTLEBOT_WALKER VELOCITIES RESETTED.");
 }
 
-void Walker::laserCallback(const sensor_msgs::LaserScan::ConstPtr& scan) {
+void Walker::laserCallback(const sensor_msgs::LaserScan::ConstPtr &scan) {
   ROS_DEBUG("CALLING LaserCallback.");
+  bool check_flag = false;
   //> If obst is nearby, start turning.
-  for (const auto& itr : scan->ranges) {
+  for (const auto &itr : scan->ranges) {
     //> scan->range_min is 0.45
-    if (itr <= scan->range_min + 0.55) {
-      twist_msgs_.linear.x = 0;
-      twist_msgs_.angular.z = max_value_;
-      velocity_pub_.publish(twist_msgs_);
-      ROS_WARN("TURNING.");
-      return;
+    if (itr <= scan->range_min + 0.45) {
+      check_flag = true;
     }
   }
-  // Else walk straight
-  twist_msgs_.linear.x = max_value_;
-  twist_msgs_.angular.z = 0;
-  velocity_pub_.publish(twist_msgs_);
-  ROS_DEBUG("GOING FORWARD");
+  if (check_flag) {
+    twist_msgs_.linear.x = 0;
+    twist_msgs_.angular.z = max_value_;
+    velocity_pub_.publish(twist_msgs_);
+    ROS_WARN("TURNING.");
+  } else {
+    // Else walk straight
+    twist_msgs_.linear.x = max_value_;
+    twist_msgs_.angular.z = 0;
+    velocity_pub_.publish(twist_msgs_);
+    ROS_DEBUG("GOING FORWARD");
+  }
   return;
 }
